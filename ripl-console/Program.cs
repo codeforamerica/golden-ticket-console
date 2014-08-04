@@ -16,7 +16,29 @@ namespace Ripl
         {
         }
 
+        //*********************************************
         // Throw away temp methods
+        //*********************************************
+
+        public static void ReadApplicants()
+        {
+            SchoolReader schoolReader = new SchoolCsvReader("c:\\users\\jeff\\code\\ripl-console\\ripl-console\\samples\\config\\schools.csv");
+            List<School> schools = schoolReader.ReadSchools();
+
+            ApplicantReader applicantReader = new ApplicantCsvReader("C:\\temp\\data.csv", schools);
+            applicantReader.ReadApplicants();
+
+            foreach(School school in schools)
+            {
+                Console.WriteLine("***************");
+                Console.WriteLine("School: {0}", school.Name);
+                
+                foreach(Applicant applicant in school.Applicants)
+                {
+                    Console.WriteLine(" - {0} {1}", applicant.StudentFirstName, applicant.StudentLastName);
+                }
+            }
+        }
 
         public static void ReadSchoolSettings()
         {

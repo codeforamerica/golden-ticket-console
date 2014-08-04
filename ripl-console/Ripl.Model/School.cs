@@ -70,5 +70,13 @@ namespace Ripl.Model
             get { return duplicateApplicants; }
             set { duplicateApplicants = value; }
         }
+
+        public void ClearApplicants()
+        {
+            applicants.Clear();
+            selectedApplicants.Clear();
+            waitlistedApplicants.Clear();
+            duplicateApplicants.Clear();
+        }
     }
 }
