@@ -1,14 +1,34 @@
-﻿using System;
+﻿using Ripl.Reader;
+using System;
+using System.Collections.Generic;
 using System.Configuration;
 
-namespace ripl_console.Ripl.Calc
+namespace Ripl.Calc
 {
     public class IncomeCalculator
     {
-        public IncomeCalculator()
+        private const int ABOVE_10_FACTOR_KEY = 0; // multiplier for number of people above 10 per household
+        Dictionary<int, int> povertyLineByNumPeople; // key => num househould members, val => poverty line income amount
+
+
+        public IncomeCalculator(IncomeReader incomeReader)
         {
-            var settings = ConfigurationManager.AppSettings;
-            //settings[
+            this.povertyLineByNumPeople = incomeReader.ReadIncome();
+        }
+
+        public bool IsBelowPovertyLine(int numHouseholdMembers, int incomeAmount)
+        {
+            if(numHouseholdMembers > 10)
+            {
+                int additionalPeopleOver10 = numHouseholdMembers - 10;
+                int povertyLineAmount = povertyLineByNumPeople[10] + (povertyLineByNumPeople[ABOVE_10_FACTOR_KEY] * additionalPeopleOver10);
+
+                return incomeAmount <= povertyLineAmount;
+            }
+            else
+            {
+                return incomeAmount <= povertyLineByNumPeople[numHouseholdMembers];
+            }
         }
 
     }

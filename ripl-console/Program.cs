@@ -7,6 +7,7 @@ using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Ripl.Calc;
 
 namespace Ripl
 {
@@ -36,7 +37,10 @@ namespace Ripl
             SchoolReader schoolReader = new SchoolCsvReader("c:\\users\\jeff\\code\\ripl-console\\ripl-console\\samples\\config\\schools.csv");
             List<School> schools = schoolReader.ReadSchools();
 
-            ApplicantReader applicantReader = new ApplicantCsvReader("C:\\temp\\data.csv", schools);
+            IncomeReader incomeReader = new IncomeCsvReader("C:\\Users\\jeff\\code\\ripl-console\\ripl-console\\samples\\config\\income.csv");
+            IncomeCalculator incomeCalc = new IncomeCalculator(incomeReader);
+
+            ApplicantReader applicantReader = new ApplicantCsvReader("C:\\temp\\data.csv", schools, incomeCalc);
             applicantReader.ReadApplicants();
 
             foreach(School school in schools)
@@ -46,7 +50,7 @@ namespace Ripl
                 
                 foreach(Applicant applicant in school.Applicants)
                 {
-                    Console.WriteLine(" - {0} {1}", applicant.StudentFirstName, applicant.StudentLastName);
+                    Console.WriteLine(" - {0} {1} : {2}", applicant.StudentFirstName, applicant.StudentLastName, applicant.IsBelowPovertyLevel);
                 }
             }
         }

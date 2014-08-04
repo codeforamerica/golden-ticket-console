@@ -25,8 +25,7 @@ namespace Ripl.Model
 
         // Household info
         string streetAddress;
-        string annualHouseholdIncomeRange;
-        string annualHouseholdIncome;
+        bool isBelowPovertyLevel;
         string district; // city
         string zipCode;
         int numHouseholdMembers;
@@ -114,16 +113,10 @@ namespace Ripl.Model
             set { numHouseholdMembers = value; }
         }
 
-        public string AnnualHouseholdIncomeRange
+        public bool IsBelowPovertyLevel
         {
-            get { return annualHouseholdIncomeRange; }
-            set { annualHouseholdIncomeRange = value; }
-        }
-
-        public string AnnualHouseholdIncome
-        {
-            get { return annualHouseholdIncome; }
-            set { annualHouseholdIncome = value; }
+            get { return isBelowPovertyLevel; }
+            set { isBelowPovertyLevel = value; }
         }
     }
 }
