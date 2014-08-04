@@ -20,6 +20,17 @@ namespace Ripl
         // Throw away temp methods
         //*********************************************
 
+        public static void ReadIncome()
+        {
+            IncomeReader incomeReader = new IncomeCsvReader("C:\\Users\\jeff\\code\\ripl-console\\ripl-console\\samples\\config\\income.csv");
+            var incomeLevels = incomeReader.ReadIncome();
+
+            foreach(int numHouseholdMembers in incomeLevels.Keys)
+            {
+                Console.WriteLine("{0} --> {1}", numHouseholdMembers, incomeLevels[numHouseholdMembers]);
+            }
+        }
+
         public static void ReadApplicants()
         {
             SchoolReader schoolReader = new SchoolCsvReader("c:\\users\\jeff\\code\\ripl-console\\ripl-console\\samples\\config\\schools.csv");
