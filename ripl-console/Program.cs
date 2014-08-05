@@ -18,9 +18,66 @@ namespace Ripl
     {
         public static void Main(string[] args)
         {
-            RunLotteryWithoutCrossSchoolReconciliation();
+            RunLottery();
         }
 
+        //TODO cleanup -- works fine, just sloppy
+        public static void RunLottery()
+        {
+            // Read in school configurations
+            SchoolReader schoolReader = new SchoolCsvReader("c:\\users\\jeff\\code\\ripl-console\\ripl-console\\samples\\config\\schools.csv");
+            List<School> schools = schoolReader.ReadSchools();
+
+            // Read in applicants and split across schools applied for
+            IncomeReader incomeReader = new IncomeCsvReader("C:\\Users\\jeff\\code\\ripl-console\\ripl-console\\samples\\config\\income.csv");
+            IncomeCalculator incomeCalc = new IncomeCalculator(incomeReader);
+
+            ApplicantReader applicantReader = new ApplicantCsvReader("C:\\temp\\data.csv", schools, incomeCalc);
+            applicantReader.ReadApplicants();
+
+            // Perform the lottery for each school
+            var settings = ConfigurationManager.AppSettings;
+            int numStudentsPerClassroom = int.Parse(settings["numStudentsPerClassroom"]);
+            double percentMale = double.Parse(settings["percentMale"]);
+            DateTime age4ByDate = Convert.ToDateTime(settings["age4ByDate"]);
+            SchoolLottery schoolLottery = new SchoolLottery(numStudentsPerClassroom, percentMale, age4ByDate);
+            CrossSchoolReconciler reconciler = new CrossSchoolReconciler(schoolLottery);
+
+            foreach (School school in schools)
+            {
+                schoolLottery.Run(school);
+            }
+            reconciler.Reconcile(schools);
+
+            //TODO Move this to the Ripl.Csv package
+            // Write to CSV files
+            foreach (School school in schools)
+            {
+                var schoolRun = schoolLottery.Run(school);
+
+                // Selected
+                string selectedFilePath = "C:\\temp\\selected\\" + school.Name + ".csv"; //TODO use arguments
+                using (StreamWriter textWriter = new StreamWriter(selectedFilePath))
+                {
+                    CsvWriter csvWriter = new CsvWriter(textWriter);
+                    csvWriter.WriteRecords(schoolRun.SelectedApplicants);
+                }
+
+                // Wait List
+                string waitListedFilePath = "C:\\temp\\wait\\" + school.Name + ".csv"; //TODO use arguments
+                using (StreamWriter textWriter = new StreamWriter(waitListedFilePath))
+                {
+                    CsvWriter csvWriter = new CsvWriter(textWriter);
+                    csvWriter.WriteRecords(schoolRun.WaitlistedApplicants);
+                }
+            }
+
+        }
+
+
+        //*********************************************
+        // Throw away temp methods, used during dev
+        //*********************************************
         public static void RunLotteryWithoutCrossSchoolReconciliation()
         {
             // Read in school configurations
@@ -63,11 +120,6 @@ namespace Ripl
                 }
             }
         }
-
-
-        //*********************************************
-        // Throw away temp methods, used during dev
-        //*********************************************
 
         public static void ReadIncome()
         {

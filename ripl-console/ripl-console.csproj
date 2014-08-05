@@ -52,6 +52,8 @@
     <Compile Include="Ripl.Csv\IncomeCsvReader.cs" />
     <Compile Include="Ripl.Csv\SchoolCsvMapper.cs" />
     <Compile Include="Ripl.Csv\SchoolCsvReader.cs" />
+    <Compile Include="Ripl.Lottery\CrossSchoolReconciler.cs" />
+    <Compile Include="Ripl.Lottery\ListShuffle.cs" />
     <Compile Include="Ripl.Lottery\SchoolLottery.cs" />
     <Compile Include="Ripl.Model\Applicant.cs" />
     <Compile Include="Ripl.Model\School.cs" />

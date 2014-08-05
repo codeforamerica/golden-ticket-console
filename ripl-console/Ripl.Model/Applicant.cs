@@ -118,5 +118,10 @@ namespace Ripl.Model
             get { return isBelowPovertyLevel; }
             set { isBelowPovertyLevel = value; }
         }
+
+        public string Checksum()
+        {
+            return studentFirstName + studentMiddleName + studentLastName + streetAddress + district + zipCode;
+        }
     }
 }

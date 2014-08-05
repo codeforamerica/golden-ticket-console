@@ -1,7 +1,7 @@
 ﻿using Ripl.Model;
 using System;
 using System.Collections.Generic;
-using ListShuffleExtensions;
+using Ripl.Lottery; //for List shuffle extensions
 
 namespace Ripl.Lottery
 {
@@ -30,6 +30,28 @@ namespace Ripl.Lottery
             int countFemale = 0;
             int countBelowPovertyLine = 0;
             int countAbovePovertyLine = 0;
+            foreach(Applicant a in school.SelectedApplicants)
+            {
+                // Gender counts
+                if(a.StudentGender == Applicant.Gender.MALE)
+                {
+                    countMale++;
+                }
+                else
+                {
+                    countFemale++;
+                }
+
+                // Poverty counts
+                if(a.IsBelowPovertyLevel)
+                {
+                    countBelowPovertyLine++;
+                }
+                else
+                {
+                    countAbovePovertyLine++;
+                }
+            }
             
             // Initial calculations
             int numStudents = school.NumClassrooms * studentsPerClassroom;
@@ -156,6 +178,7 @@ namespace Ripl.Lottery
             }
 
             // Wait list the rest
+            school.WaitlistedApplicants.Clear();
             school.WaitlistedApplicants.AddRange(applicants);
 
             return school;
@@ -168,11 +191,11 @@ namespace Ripl.Lottery
 
             foreach(Applicant a in applicants)
             {
-                string code = a.StudentFirstName + a.StudentMiddleName + a.StudentLastName + a.StreetAddress + a.District + a.ZipCode;
-                if(!applicantCodes.Contains(code))
+                string checksum = a.Checksum();
+                if(!applicantCodes.Contains(checksum))
                 {
                     dedupedApplicants.Add(a);
-                    applicantCodes.Add(code);
+                    applicantCodes.Add(checksum);
                 }
             }
 
@@ -228,26 +251,6 @@ namespace Ripl.Lottery
             }
 
             return filteredApplicants;
-        }
-    }
-}
-
-// Used from http://stackoverflow.com/a/22668974/249016
-namespace ListShuffleExtensions
-{
-    public static class ListShuffleExtensions
-    {
-        public static void Shuffle<T>(this IList<T> list, Random rnd)
-        {
-            for (var i = 0; i < list.Count; i++)
-                list.Swap(i, rnd.Next(i, list.Count));
-        }
-
-        public static void Swap<T>(this IList<T> list, int i, int j)
-        {
-            var temp = list[i];
-            list[i] = list[j];
-            list[j] = temp;
         }
     }
 }
