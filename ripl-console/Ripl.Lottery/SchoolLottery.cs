@@ -18,6 +18,11 @@ namespace Ripl.Lottery
 
         public School Run(School school)
         {
+            return Run(school, school.Applicants);
+        }
+
+        public School Run(School school, List<Applicant> applicantList)
+        {
             // Counts
             int countMale = 0;
             int countFemale = 0;
@@ -32,7 +37,7 @@ namespace Ripl.Lottery
             int numAbovePovertyLine = numStudents - numBelowPovertyLine;
 
             // Copy the list to preserve it
-            List<Applicant> applicants = new List<Applicant>(school.Applicants);
+            List<Applicant> applicants = new List<Applicant>(applicantList);
 
             // Remove duplicates
             applicants = RemoveDuplicates(applicants);
