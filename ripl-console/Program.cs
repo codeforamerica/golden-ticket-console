@@ -18,13 +18,14 @@ namespace Ripl
     {
         public static void Main(string[] args)
         {
+            RunLotteryWithoutCrossSchoolReconciliation();
         }
 
         //*********************************************
         // Throw away temp methods
         //*********************************************
 
-        public static void RunLottery()
+        public static void RunLotteryWithoutCrossSchoolReconciliation()
         {
             // Read in school configurations
             SchoolReader schoolReader = new SchoolCsvReader("c:\\users\\jeff\\code\\ripl-console\\ripl-console\\samples\\config\\schools.csv");
@@ -46,11 +47,12 @@ namespace Ripl
             //TODO Move this to the Ripl.Csv package
             foreach(School school in schools)
             {
-                string filePath = "C:\\temp\\" + school.Name + ".csv";
+                var schoolRun = schoolLottery.Run(school);
+                string filePath = "C:\\temp\\selected\\" + school.Name + ".csv";
                 using (StreamWriter textWriter = new StreamWriter(filePath))
                 {
                     CsvWriter csvWriter = new CsvWriter(textWriter);
-                    csvWriter.WriteRecords(school.Applicants);
+                    csvWriter.WriteRecords(schoolRun.SelectedApplicants);
                 }
             }
         }
