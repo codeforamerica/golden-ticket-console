@@ -21,10 +21,6 @@ namespace Ripl
             RunLotteryWithoutCrossSchoolReconciliation();
         }
 
-        //*********************************************
-        // Throw away temp methods
-        //*********************************************
-
         public static void RunLotteryWithoutCrossSchoolReconciliation()
         {
             // Read in school configurations
@@ -45,17 +41,32 @@ namespace Ripl
             SchoolLottery schoolLottery = new SchoolLottery(numStudentsPerClassroom, percentMale);
 
             //TODO Move this to the Ripl.Csv package
-            foreach(School school in schools)
+            foreach (School school in schools)
             {
                 var schoolRun = schoolLottery.Run(school);
-                string filePath = "C:\\temp\\selected\\" + school.Name + ".csv";
-                using (StreamWriter textWriter = new StreamWriter(filePath))
+
+                // Selected
+                string selectedFilePath = "C:\\temp\\selected\\" + school.Name + ".csv"; //TODO use arguments
+                using (StreamWriter textWriter = new StreamWriter(selectedFilePath))
                 {
                     CsvWriter csvWriter = new CsvWriter(textWriter);
                     csvWriter.WriteRecords(schoolRun.SelectedApplicants);
                 }
+
+                // Wait List
+                string waitListedFilePath = "C:\\temp\\wait\\" + school.Name + ".csv"; //TODO use arguments
+                using (StreamWriter textWriter = new StreamWriter(waitListedFilePath))
+                {
+                    CsvWriter csvWriter = new CsvWriter(textWriter);
+                    csvWriter.WriteRecords(schoolRun.WaitlistedApplicants);
+                }
             }
         }
+
+
+        //*********************************************
+        // Throw away temp methods, used during dev
+        //*********************************************
 
         public static void ReadIncome()
         {
