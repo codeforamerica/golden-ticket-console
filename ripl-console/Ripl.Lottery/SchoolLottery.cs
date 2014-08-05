@@ -9,11 +9,13 @@ namespace Ripl.Lottery
     {
         int studentsPerClassroom;
         double percentMale;
+        DateTime age4ByDate;
 
-        public SchoolLottery(int studentsPerClassroom, double percentMale)
+        public SchoolLottery(int studentsPerClassroom, double percentMale, DateTime age4ByDate)
         {
             this.studentsPerClassroom = studentsPerClassroom;
             this.percentMale = percentMale;
+            this.age4ByDate = age4ByDate;
         }
 
         public School Run(School school)
@@ -42,6 +44,12 @@ namespace Ripl.Lottery
             // Remove duplicates
             applicants = RemoveDuplicates(applicants);
             //TODO Maybe add the removed duplicates to the school's list
+
+            // Remove those that don't live in the distrct
+            applicants = FilterByDistrict(applicants,school.District);
+
+            // Remove applicants who are too old or young
+            applicants = FilterByAge(applicants);
 
             // Randomly sort the list
             //TODO This should work great, but double check anyway
@@ -169,6 +177,43 @@ namespace Ripl.Lottery
             }
 
             return dedupedApplicants;
+        }
+
+        private static List<Applicant> FilterByDistrict(List<Applicant> applicants, string district)
+        {
+            List<Applicant> filteredApplicants = new List<Applicant>();
+
+            foreach (Applicant a in applicants)
+            {
+                if(district.Equals(a.District))
+                {
+                    filteredApplicants.Add(a);
+                }
+            }
+
+            return filteredApplicants;
+        }
+
+        private List<Applicant> FilterByAge(List<Applicant> applicants)
+        {
+            List<Applicant> filteredApplicants = new List<Applicant>();
+
+            foreach (Applicant a in applicants)
+            {
+                int ageByCutoff = age4ByDate.Year - a.StudentBirthday.Year;
+                DateTime adjustedDate = age4ByDate.AddYears(-ageByCutoff);
+                if(a.StudentBirthday > adjustedDate)
+                {
+                    ageByCutoff--;
+                }
+
+                if (ageByCutoff == 4)
+                {
+                    filteredApplicants.Add(a);
+                }
+            }
+
+            return filteredApplicants;
         }
 
         private List<Applicant> GetByPovertyStatus(List<Applicant> applicants, bool isBelowPovertyLine)

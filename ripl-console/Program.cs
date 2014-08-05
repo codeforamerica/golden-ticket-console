@@ -38,7 +38,8 @@ namespace Ripl
             var settings = ConfigurationManager.AppSettings;
             int numStudentsPerClassroom = int.Parse(settings["numStudentsPerClassroom"]);
             double percentMale = double.Parse(settings["percentMale"]);
-            SchoolLottery schoolLottery = new SchoolLottery(numStudentsPerClassroom, percentMale);
+            DateTime age4ByDate = Convert.ToDateTime(settings["age4ByDate"]);
+            SchoolLottery schoolLottery = new SchoolLottery(numStudentsPerClassroom, percentMale, age4ByDate);
 
             //TODO Move this to the Ripl.Csv package
             foreach (School school in schools)
