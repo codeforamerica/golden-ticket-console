@@ -28,6 +28,7 @@ namespace Ripl.Lottery
             return Run(school, applicantList, true);
         }
 
+        //TODO Optimize this later. There are a lot of repeated loops.
         public School Run(School school, List<Applicant> applicantList, bool shuffleApplicantList)
         {
             // Counts
@@ -175,6 +176,41 @@ namespace Ripl.Lottery
 
                     countAbovePovertyLine++;
                     countFemale++;
+                }
+            }
+
+            // Do a second pass on the above poverty line students in case gender balance prevented it from getting fulfilled
+            // RIDE: Income balance takes priority over male to female ratio
+            // Gender agnostic, income checked pass
+            if (countAbovePovertyLine < numAbovePovertyLine)
+            {
+                higherIncomeApplicants = GetByPovertyStatus(applicants, false);
+                foreach (Applicant a in higherIncomeApplicants)
+                {
+                    // If the low income quota has been met, move on
+                    if (countAbovePovertyLine >= numAbovePovertyLine || school.SelectedApplicants.Count >= numStudents)
+                    {
+                        break;
+                    }
+
+                    // Add the student
+                    if (a.StudentGender == Applicant.Gender.MALE)
+                    {
+                        school.SelectedApplicants.Add(a);
+                        applicants.Remove(a);
+
+                        countBelowPovertyLine++;
+                        countMale++;
+                    }
+                    else if (a.StudentGender == Applicant.Gender.FEMALE)
+                    {
+                        school.SelectedApplicants.Add(a);
+                        applicants.Remove(a);
+
+                        countBelowPovertyLine++;
+                        countFemale++;
+                    }
+
                 }
             }
 
