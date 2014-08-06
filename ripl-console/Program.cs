@@ -21,8 +21,9 @@ namespace Ripl
             string schoolConfigPath = args[0];
             string incomeConfigPath = args[1];
             string applicantCsvPath = args[2];
-            string selectedFolderPath = args[3];
-            string waitlistedFolderPath = args[4];
+            string applicantsFolderPath = args[3];
+            string selectedFolderPath = args[4];
+            string waitlistedFolderPath = args[5];
 
             // Read in school configurations
             SchoolReader schoolReader = new SchoolCsvReader(schoolConfigPath);
@@ -46,7 +47,8 @@ namespace Ripl
 
             foreach (School school in schools)
             {
-                schoolLottery.Run(school);
+                school.Applicants.Shuffle(new Random());
+                schoolLottery.Run(school,school.Applicants,false); // false because RIDE wants to output the randomized Applicant list, so doing this before. Randomization done on prior line.
             }
             reconciler.Reconcile(schools);
 
@@ -54,6 +56,14 @@ namespace Ripl
             // Write to CSV files
             foreach (School school in schools)
             {
+                // Randomized applicant list
+                string randomizedApplicantsFilePath = applicantsFolderPath + "\\" + school.Name + ".csv";
+                using (StreamWriter textWriter = new StreamWriter(randomizedApplicantsFilePath))
+                {
+                    CsvWriter csvWriter = new CsvWriter(textWriter);
+                    csvWriter.WriteRecords(school.WaitlistedApplicants);
+                }
+                
                 // Selected
                 string selectedFilePath = selectedFolderPath + "\\" + school.Name + ".csv"; 
                 using (StreamWriter textWriter = new StreamWriter(selectedFilePath))
