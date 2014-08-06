@@ -20,10 +20,15 @@ namespace Ripl.Lottery
 
         public School Run(School school)
         {
-            return Run(school, school.Applicants);
+            return Run(school, school.Applicants, true);
         }
 
         public School Run(School school, List<Applicant> applicantList)
+        {
+            return Run(school, applicantList, true);
+        }
+
+        public School Run(School school, List<Applicant> applicantList, bool shuffleApplicantList)
         {
             // Counts
             int countMale = 0;
@@ -74,8 +79,10 @@ namespace Ripl.Lottery
             applicants = FilterByAge(applicants);
 
             // Randomly sort the list
-            //TODO This should work great, but double check anyway
-            applicants.Shuffle(new Random());
+            if(shuffleApplicantList)
+            {
+                applicants.Shuffle(new Random());
+            }
 
             // Select low income students
             List<Applicant> lowIncomeApplicants = GetByPovertyStatus(applicants, true);
@@ -87,7 +94,6 @@ namespace Ripl.Lottery
                     break;
                 }
 
-                //TODO check on this
                 // Add the student if the male/female ratio hasn't been violated
                 if(a.StudentGender == Applicant.Gender.MALE && countMale < numMale)
                 {
@@ -107,6 +113,41 @@ namespace Ripl.Lottery
                 }
             }
 
+            // Do a second pass on the below poverty line students in case gender balance prevented it from getting fulfilled
+            // RIDE: Income balance takes priority over male to female ratio
+            // Gender agnostic, income checked pass
+            if (countBelowPovertyLine < numBelowPovertyLine)
+            {
+                lowIncomeApplicants = GetByPovertyStatus(applicants, true);
+                foreach (Applicant a in lowIncomeApplicants)
+                {
+                    // If the low income quota has been met, move on
+                    if (countBelowPovertyLine >= numBelowPovertyLine || school.SelectedApplicants.Count >= numStudents)
+                    {
+                        break;
+                    }
+
+                    // Add the student
+                    if (a.StudentGender == Applicant.Gender.MALE)
+                    {
+                        school.SelectedApplicants.Add(a);
+                        applicants.Remove(a);
+
+                        countBelowPovertyLine++;
+                        countMale++;
+                    }
+                    else if (a.StudentGender == Applicant.Gender.FEMALE)
+                    {
+                        school.SelectedApplicants.Add(a);
+                        applicants.Remove(a);
+
+                        countBelowPovertyLine++;
+                        countFemale++;
+                    }
+
+                }
+            }
+
             // Select higher income students
             // TODO refactor -- almost the same as the above loop
             List<Applicant> higherIncomeApplicants = GetByPovertyStatus(applicants, false);
@@ -118,7 +159,6 @@ namespace Ripl.Lottery
                     break;
                 }
 
-                //TODO check on this
                 // Add the student if the male/female ratio hasn't been violated
                 if (a.StudentGender == Applicant.Gender.MALE && countMale < numMale)
                 {
@@ -146,7 +186,6 @@ namespace Ripl.Lottery
                     break;
                 }
 
-                //TODO check on this
                 //TODO refactor -- this chunk of code is similar to other male/female selections
                 // Add the student if the male/female ratio hasn't been violated
                 if (a.StudentGender == Applicant.Gender.MALE && countMale < numMale)
