@@ -21,13 +21,9 @@ namespace Ripl
             string schoolConfigPath = args[0];
             string incomeConfigPath = args[1];
             string applicantCsvPath = args[2];
+            string selectedFolderPath = args[3];
+            string waitlistedFolderPath = args[4];
 
-            RunLottery(schoolConfigPath, incomeConfigPath, applicantCsvPath);
-        }
-
-        //TODO cleanup -- works fine, just sloppy
-        public static void RunLottery(string schoolConfigPath, string incomeConfigPath, string applicantCsvPath)
-        {
             // Read in school configurations
             SchoolReader schoolReader = new SchoolCsvReader(schoolConfigPath);
             List<School> schools = schoolReader.ReadSchools();
@@ -40,10 +36,11 @@ namespace Ripl
             applicantReader.ReadApplicants();
 
             // Perform the lottery for each school
-            var settings = ConfigurationManager.AppSettings;
-            int numStudentsPerClassroom = int.Parse(settings["numStudentsPerClassroom"]);
-            double percentMale = double.Parse(settings["percentMale"]);
-            DateTime age4ByDate = Convert.ToDateTime(settings["age4ByDate"]);
+            //var settings = ConfigurationManager.AppSettings; //TODO get App.config to be built into the EXE, until then settings are here directly
+            int numStudentsPerClassroom = 18;
+            double percentMale = 0.5;
+            DateTime age4ByDate = Convert.ToDateTime("2014-09-01");
+            
             SchoolLottery schoolLottery = new SchoolLottery(numStudentsPerClassroom, percentMale, age4ByDate);
             CrossSchoolReconciler reconciler = new CrossSchoolReconciler(schoolLottery);
 
@@ -60,7 +57,7 @@ namespace Ripl
                 var schoolRun = schoolLottery.Run(school);
 
                 // Selected
-                string selectedFilePath = "C:\\temp\\selected\\" + school.Name + ".csv"; //TODO use arguments
+                string selectedFilePath = selectedFolderPath + "\\" + school.Name + ".csv"; 
                 using (StreamWriter textWriter = new StreamWriter(selectedFilePath))
                 {
                     CsvWriter csvWriter = new CsvWriter(textWriter);
@@ -68,12 +65,15 @@ namespace Ripl
                 }
 
                 // Wait List
-                string waitListedFilePath = "C:\\temp\\wait\\" + school.Name + ".csv"; //TODO use arguments
+                string waitListedFilePath = waitlistedFolderPath + "\\" + school.Name + ".csv"; 
                 using (StreamWriter textWriter = new StreamWriter(waitListedFilePath))
                 {
                     CsvWriter csvWriter = new CsvWriter(textWriter);
                     csvWriter.WriteRecords(schoolRun.WaitlistedApplicants);
                 }
             }
+
+            Console.WriteLine("Done!");
         }
+    }
 }
