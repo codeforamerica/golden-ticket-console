@@ -54,14 +54,12 @@ namespace Ripl
             // Write to CSV files
             foreach (School school in schools)
             {
-                var schoolRun = schoolLottery.Run(school);
-
                 // Selected
                 string selectedFilePath = selectedFolderPath + "\\" + school.Name + ".csv"; 
                 using (StreamWriter textWriter = new StreamWriter(selectedFilePath))
                 {
                     CsvWriter csvWriter = new CsvWriter(textWriter);
-                    csvWriter.WriteRecords(schoolRun.SelectedApplicants);
+                    csvWriter.WriteRecords(school.SelectedApplicants);
                 }
 
                 // Wait List
@@ -69,7 +67,7 @@ namespace Ripl
                 using (StreamWriter textWriter = new StreamWriter(waitListedFilePath))
                 {
                     CsvWriter csvWriter = new CsvWriter(textWriter);
-                    csvWriter.WriteRecords(schoolRun.WaitlistedApplicants);
+                    csvWriter.WriteRecords(school.WaitlistedApplicants);
                 }
             }
 
@@ -79,33 +77,48 @@ namespace Ripl
                 {
                     textWriter.WriteLine("************");
                     textWriter.WriteLine("School: {0}", s.Name);
+
+                    textWriter.WriteLine("Applied: {0} (includes duplicates, out-of-district)", s.Applicants.Count());
+
+                    int a_belowPovertyCount = s.Applicants.Where(v => v.IsBelowPovertyLevel).Count();
+                    textWriter.WriteLine("\tBelow Poverty: {0} (includes duplicates, out-of-district)", a_belowPovertyCount);
+
+                    int a_abovePovertyCount = s.Applicants.Where(v => !v.IsBelowPovertyLevel).Count();
+                    textWriter.WriteLine("\tAbove Poverty: {0} (includes duplicates, out-of-district)", a_abovePovertyCount);
+
+                    int a_numBoys = s.Applicants.Where(v => v.StudentGender == Applicant.Gender.MALE).Count();
+                    textWriter.WriteLine("\tBoys: {0} (includes duplicates, out-of-district)", a_numBoys);
+
+                    int a_numGirls = s.Applicants.Where(v => v.StudentGender == Applicant.Gender.FEMALE).Count();
+                    textWriter.WriteLine("\tGirls: {0} (includes duplicates, out-of-district)", a_numGirls);
+
                     textWriter.WriteLine("Selected: {0}", s.SelectedApplicants.Count());
                 
-                    int belowPovertyCount = s.SelectedApplicants.Where(v => v.IsBelowPovertyLevel).Count();
-                    textWriter.WriteLine("\tBelow Poverty: {0}", belowPovertyCount);
+                    int s_belowPovertyCount = s.SelectedApplicants.Where(v => v.IsBelowPovertyLevel).Count();
+                    textWriter.WriteLine("\tBelow Poverty: {0}", s_belowPovertyCount);
                 
-                    int abovePovertyCount = s.SelectedApplicants.Where(v => !v.IsBelowPovertyLevel).Count();
-                    textWriter.WriteLine("\tAbove Poverty: {0}", abovePovertyCount);
+                    int s_abovePovertyCount = s.SelectedApplicants.Where(v => !v.IsBelowPovertyLevel).Count();
+                    textWriter.WriteLine("\tAbove Poverty: {0}", s_abovePovertyCount);
 
-                    int numBoys = s.SelectedApplicants.Where(v => v.StudentGender == Applicant.Gender.MALE).Count();
-                    textWriter.WriteLine("\tBoys: {0}", numBoys);
+                    int s_numBoys = s.SelectedApplicants.Where(v => v.StudentGender == Applicant.Gender.MALE).Count();
+                    textWriter.WriteLine("\tBoys: {0}", s_numBoys);
 
-                    int numGirls = s.SelectedApplicants.Where(v => v.StudentGender == Applicant.Gender.FEMALE).Count();
-                    textWriter.WriteLine("\tGirls: {0}", numGirls);
+                    int s_numGirls = s.SelectedApplicants.Where(v => v.StudentGender == Applicant.Gender.FEMALE).Count();
+                    textWriter.WriteLine("\tGirls: {0}", s_numGirls);
 
                     textWriter.WriteLine("Waitlisted: {0}", s.WaitlistedApplicants.Count());
 
-                    belowPovertyCount = s.WaitlistedApplicants.Where(v => v.IsBelowPovertyLevel).Count();
-                    textWriter.WriteLine("\tBelow Poverty: {0}", belowPovertyCount);
+                    int w_belowPovertyCount = s.WaitlistedApplicants.Where(v => v.IsBelowPovertyLevel).Count();
+                    textWriter.WriteLine("\tBelow Poverty: {0}", w_belowPovertyCount);
 
-                    abovePovertyCount = s.WaitlistedApplicants.Where(v => !v.IsBelowPovertyLevel).Count();
-                    textWriter.WriteLine("\tAbove Poverty: {0}", abovePovertyCount);
+                    int w_abovePovertyCount = s.WaitlistedApplicants.Where(v => !v.IsBelowPovertyLevel).Count();
+                    textWriter.WriteLine("\tAbove Poverty: {0}", w_abovePovertyCount);
 
-                    numBoys = s.WaitlistedApplicants.Where(v => v.StudentGender == Applicant.Gender.MALE).Count();
-                    textWriter.WriteLine("\tBoys: {0}", numBoys);
+                    int w_numBoys = s.WaitlistedApplicants.Where(v => v.StudentGender == Applicant.Gender.MALE).Count();
+                    textWriter.WriteLine("\tBoys: {0}", w_numBoys);
 
-                    numGirls = s.WaitlistedApplicants.Where(v => v.StudentGender == Applicant.Gender.FEMALE).Count();
-                    textWriter.WriteLine("\tGirls: {0}", numGirls);
+                    int w_numGirls = s.WaitlistedApplicants.Where(v => v.StudentGender == Applicant.Gender.FEMALE).Count();
+                    textWriter.WriteLine("\tGirls: {0}", w_numGirls);
 
                 }
             }
