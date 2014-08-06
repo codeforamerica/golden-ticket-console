@@ -73,7 +73,42 @@ namespace Ripl
                 }
             }
 
-            Console.WriteLine("Done!");
+            using(StreamWriter textWriter = new StreamWriter(selectedFolderPath + "\\" + "summary.txt"))
+            {
+                foreach(School s in schools.OrderBy(s=>s.Name))
+                {
+                    textWriter.WriteLine("************");
+                    textWriter.WriteLine("School: {0}", s.Name);
+                    textWriter.WriteLine("Selected: {0}", s.SelectedApplicants.Count());
+                
+                    int belowPovertyCount = s.SelectedApplicants.Where(v => v.IsBelowPovertyLevel).Count();
+                    textWriter.WriteLine("\tBelow Poverty: {0}", belowPovertyCount);
+                
+                    int abovePovertyCount = s.SelectedApplicants.Where(v => !v.IsBelowPovertyLevel).Count();
+                    textWriter.WriteLine("\tAbove Poverty: {0}", abovePovertyCount);
+
+                    int numBoys = s.SelectedApplicants.Where(v => v.StudentGender == Applicant.Gender.MALE).Count();
+                    textWriter.WriteLine("\tBoys: {0}", numBoys);
+
+                    int numGirls = s.SelectedApplicants.Where(v => v.StudentGender == Applicant.Gender.FEMALE).Count();
+                    textWriter.WriteLine("\tGirls: {0}", numGirls);
+
+                    textWriter.WriteLine("Waitlisted: {0}", s.WaitlistedApplicants.Count());
+
+                    belowPovertyCount = s.WaitlistedApplicants.Where(v => v.IsBelowPovertyLevel).Count();
+                    textWriter.WriteLine("\tBelow Poverty: {0}", belowPovertyCount);
+
+                    abovePovertyCount = s.WaitlistedApplicants.Where(v => !v.IsBelowPovertyLevel).Count();
+                    textWriter.WriteLine("\tAbove Poverty: {0}", abovePovertyCount);
+
+                    numBoys = s.WaitlistedApplicants.Where(v => v.StudentGender == Applicant.Gender.MALE).Count();
+                    textWriter.WriteLine("\tBoys: {0}", numBoys);
+
+                    numGirls = s.WaitlistedApplicants.Where(v => v.StudentGender == Applicant.Gender.FEMALE).Count();
+                    textWriter.WriteLine("\tGirls: {0}", numGirls);
+
+                }
+            }
         }
     }
 }
