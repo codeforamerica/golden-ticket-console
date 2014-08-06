@@ -87,6 +87,11 @@ namespace Ripl
                     WriteSummaryGroup(textWriter, "Selected", s.SelectedApplicants);
                     WriteSummaryGroup(textWriter, "Waitlisted", s.WaitlistedApplicants);
                 }
+
+                textWriter.WriteLine("************");
+                textWriter.WriteLine("Notes:");
+                textWriter.WriteLine("\t-The number of [post-filtered] applicants and the sum of the selected and waitlisted will often not be equal for districts with multiple schools. This is because selected students are removed from the waitlists of other schools.");
+
             }
         }
 
