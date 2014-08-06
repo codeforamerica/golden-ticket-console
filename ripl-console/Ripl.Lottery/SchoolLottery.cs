@@ -20,16 +20,16 @@ namespace Ripl.Lottery
 
         public School Run(School school)
         {
-            return Run(school, school.Applicants, true);
+            return Run(school, school.Applicants, true, true);
         }
 
         public School Run(School school, List<Applicant> applicantList)
         {
-            return Run(school, applicantList, true);
+            return Run(school, applicantList, true, true);
         }
 
         //TODO Optimize this later. There are a lot of repeated loops.
-        public School Run(School school, List<Applicant> applicantList, bool shuffleApplicantList)
+        public School Run(School school, List<Applicant> applicantList, bool shuffleApplicantList, bool filterApplicantList)
         {
             // Counts
             int countMale = 0;
@@ -66,23 +66,36 @@ namespace Ripl.Lottery
             int numBelowPovertyLine = (int)Math.Round(numStudents*school.PercentBelowPovertyLine);
             int numAbovePovertyLine = numStudents - numBelowPovertyLine;
 
-            // Copy the list to preserve it
+            // Copy the list to preserve the passed in list
             List<Applicant> applicants = new List<Applicant>(applicantList);
 
-            // Remove duplicates
-            applicants = RemoveDuplicates(applicants);
-            //TODO Maybe add the removed duplicates to the school's list
+            // Filter applicants
+            if(filterApplicantList)
+            {
+                // Remove duplicates
+                applicants = FilterDuplicates(applicants);
 
-            // Remove those that don't live in the distrct
-            applicants = FilterByDistrict(applicants,school.District);
+                // Remove those that don't live in the distrct
+                applicants = FilterByDistrict(applicants,school.District);
 
-            // Remove applicants who are too old or young
-            applicants = FilterByAge(applicants);
+                // Remove applicants who are too old or young
+                applicants = FilterByAge(applicants);
+
+                // Record the filtering
+                school.FilteredApplicants.Clear();
+                school.FilteredApplicants.AddRange(applicants);
+
+            }
 
             // Randomly sort the list
             if(shuffleApplicantList)
             {
+                // Randomly shuffle the applicants
                 applicants.Shuffle(new Random());
+
+                // Record the shuffling
+                school.ShuffledApplicants.Clear();
+                school.ShuffledApplicants.AddRange(applicants);
             }
 
             // Select low income students
@@ -259,7 +272,7 @@ namespace Ripl.Lottery
             return school;
         }
 
-        private List<Applicant> RemoveDuplicates(List<Applicant> applicants)
+        private List<Applicant> FilterDuplicates(List<Applicant> applicants)
         {
             List<Applicant> dedupedApplicants = new List<Applicant>();
             HashSet<string> applicantCodes = new HashSet<string>();

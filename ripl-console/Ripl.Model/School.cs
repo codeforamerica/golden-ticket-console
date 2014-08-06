@@ -10,10 +10,11 @@ namespace Ripl.Model
         double percentBelowPovertyLine;
         int numClassrooms;
 
-        List<Applicant> applicants = new List<Applicant>();
-        List<Applicant> selectedApplicants = new List<Applicant>();
-        List<Applicant> waitlistedApplicants = new List<Applicant>();
-        List<Applicant> duplicateApplicants = new List<Applicant>();
+        List<Applicant> applicants = new List<Applicant>(); // raw list of applicants
+        List<Applicant> selectedApplicants = new List<Applicant>(); // list of applicants selected
+        List<Applicant> waitlistedApplicants = new List<Applicant>(); // list of applicants waitlist
+        List<Applicant> shuffledApplicants = new List<Applicant>(); // same as raw list of applicants, but randomly shuffled -- preserved for auditing
+        List<Applicant> filteredApplicants = new List<Applicant>(); // same as shuffled applicants, but filtering performed (age, duplicates, not in district) -- preserved for auditing
 
         public School()
         {
@@ -62,13 +63,17 @@ namespace Ripl.Model
         public List<Applicant> WaitlistedApplicants
         {
             get { return waitlistedApplicants; }
-            set { waitlistedApplicants = value; }
         }
 
-        public List<Applicant> DuplicateApplicants
+        public List<Applicant> ShuffledApplicants
         {
-            get { return duplicateApplicants; }
-            set { duplicateApplicants = value; }
+            get { return shuffledApplicants; }
+        }
+
+        public List<Applicant> FilteredApplicants
+        {
+            get { return filteredApplicants; }
+            set { filteredApplicants = value; }
         }
 
         public void ClearApplicants()
@@ -76,7 +81,8 @@ namespace Ripl.Model
             applicants.Clear();
             selectedApplicants.Clear();
             waitlistedApplicants.Clear();
-            duplicateApplicants.Clear();
+            shuffledApplicants.Clear();
+            filteredApplicants.Clear();
         }
     }
 }

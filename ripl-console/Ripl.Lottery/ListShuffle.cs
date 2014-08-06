@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-// Used from http://stackoverflow.com/a/22668974/249016
+// Fisher-Yates algorithm implementation from http://stackoverflow.com/a/22668974/249016
 namespace Ripl.Lottery
 {
     public static class ListShuffle

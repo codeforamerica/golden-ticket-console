@@ -132,7 +132,7 @@ namespace Ripl.Lottery
                 if(s != lowestSchool)
                 {
                     s.SelectedApplicants.Remove(applicant);
-                    schoolLottery.Run(s, s.WaitlistedApplicants, false);
+                    schoolLottery.Run(s, s.WaitlistedApplicants, false, false);
                     if(s == currentSchool)
                     {
                         effectsCurrentSchool = true;
