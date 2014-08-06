@@ -15,7 +15,7 @@ namespace Ripl.Lottery
             this.schoolLottery = schoolLottery;
         }
 
-        //TODO This can be made more efficient
+        //TODO This method can be made more efficient. Optimize later.
         public List<School> Reconcile(List<School> schools)
         {
             // Remove selected students from all school waitlists
@@ -31,7 +31,7 @@ namespace Ripl.Lottery
                 List<Applicant> selectedApplicants = new List<Applicant>(s.SelectedApplicants); // to prevent concurrent modification during iteration
                 foreach(Applicant a in selectedApplicants)
                 {
-                    // Skip applicant if already reconciled
+                    // Skip applicant if already reconciled - done to optimize in the event the schoolLoop is reset (see bottom of loop)
                     if(reconciledApplicants.Contains(a))
                     {
                         continue;
@@ -39,55 +39,23 @@ namespace Ripl.Lottery
 
                     // Reconcile the applicant between schools he/she was selected 
                     List<School> selectedSchools = GetSchoolsApplicantWasSelectedAt(a, remainingSchools);
-                    bool effectsCurrentSchool = ReconcileApplicant(a, selectedSchools, s);
+                    bool currentSchoolEffected = ReconcileApplicant(a, s, selectedSchools);
+                    RemoveSelectedFromWaitlists(schools, s.SelectedApplicants); //TODO This step is very inefficient. Optimize later.
 
                     // Adjust the control structures
                     reconciledApplicants.Add(a);
 
-                    // Reset the loop if the current has been impacted
-                    if (effectsCurrentSchool)
+                    // Reset the loop if the current school's selected list has been updated/impacted 
+                    // (i.e. the current applicant has been removed and someone new has been added to the selected list)
+                    if (currentSchoolEffected)
                     {
-                        goto schoolLoop; //TODO Is there a better way?
+                        goto schoolLoop; //TODO Is there a better way than a goto? Optimize later.
                     }
                 }
                 remainingSchools.Remove(s);
             }
 
             return schools;
-        }
-
-        //TODO is there a way to do this with a function pointer or delegate on selected?
-        private Dictionary<string,HashSet<string>> MakeChecksumsForSelected(IEnumerable<School> schools)
-        {
-            var checksums = new Dictionary<string, HashSet<string>>();
-
-            foreach(School s in schools)
-            {
-                checksums[s.Name] = new HashSet<string>();
-                foreach(Applicant a in s.SelectedApplicants)
-                {
-                    checksums[s.Name].Add(a.Checksum());
-                }
-            }
-
-            return checksums;
-        }
-
-        //TODO is there a way to do this with a function pointer or delegate on waitlisted?
-        private Dictionary<string, HashSet<string>> MakeChecksumsForWaitlisted(IEnumerable<School> schools)
-        {
-            var checksums = new Dictionary<string, HashSet<string>>();
-
-            foreach (School s in schools)
-            {
-                checksums[s.Name] = new HashSet<string>();
-                foreach (Applicant a in s.WaitlistedApplicants)
-                {
-                    checksums[s.Name].Add(a.Checksum());
-                }
-            }
-
-            return checksums;
         }
 
         private List<Applicant> GetAllSelectedApplicants(IEnumerable<School> schools)
@@ -100,13 +68,17 @@ namespace Ripl.Lottery
             return selectedApplicants;
         }
 
-        //TODO make this more efficient
         private void RemoveSelectedFromWaitlists(IEnumerable<School> schools)
         {
-            List<Applicant> allSelectedApplicants = GetAllSelectedApplicants(schools);
-            foreach(Applicant a in allSelectedApplicants)
+            RemoveSelectedFromWaitlists(schools, GetAllSelectedApplicants(schools));
+        }
+
+        //TODO Rename this method
+        private void RemoveSelectedFromWaitlists(IEnumerable<School> schools, IEnumerable<Applicant> applicants)
+        {
+            foreach (Applicant a in applicants)
             {
-                foreach(School s in schools)
+                foreach (School s in schools)
                 {
                     s.WaitlistedApplicants.Remove(a);
                 }
@@ -128,10 +100,10 @@ namespace Ripl.Lottery
             return selectedSchools;
         }
 
-        private bool ReconcileApplicant(Applicant applicant, List<School> schools, School currentSchool)
+        private bool ReconcileApplicant(Applicant applicant, School currentSchool, List<School> selectedSchools)
         {
             // If applicant is only in one school, no reconciliation needed
-            if(schools.Count <= 1)
+            if(selectedSchools.Count <= 1)
             {
                 return false;
             }
@@ -140,7 +112,7 @@ namespace Ripl.Lottery
             School lowestSchool = null;
             int lowestIndex = 10000; //start very high
             
-            List<School> shuffledSchools = new List<School>(schools);
+            List<School> shuffledSchools = new List<School>(selectedSchools);
             shuffledSchools.Shuffle(new Random());
 
             foreach(School s in shuffledSchools)
@@ -155,12 +127,12 @@ namespace Ripl.Lottery
 
             // Remove the student from the higher (number-wise) on the list schools and run lotteries for those schools
             bool effectsCurrentSchool = false;
-            foreach(School s in schools)
+            foreach(School s in selectedSchools)
             {
                 if(s != lowestSchool)
                 {
                     s.SelectedApplicants.Remove(applicant);
-                    schoolLottery.Run(s, s.WaitlistedApplicants);
+                    schoolLottery.Run(s, s.WaitlistedApplicants, false);
                     if(s == currentSchool)
                     {
                         effectsCurrentSchool = true;

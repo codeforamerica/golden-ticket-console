@@ -19,6 +19,7 @@ namespace Ripl
         public static void Main(string[] args)
         {
             RunLottery();
+            //RunLotteryWithoutCrossSchoolReconciliation();
         }
 
         //TODO cleanup -- works fine, just sloppy
