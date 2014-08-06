@@ -68,6 +68,7 @@ namespace Ripl.Lottery
             return selectedApplicants;
         }
 
+        // Global removal of selected from all schools' waitlists
         private void RemoveSelectedFromWaitlists(IEnumerable<School> schools)
         {
             RemoveSelectedFromWaitlists(schools, GetAllSelectedApplicants(schools));
